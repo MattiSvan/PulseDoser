@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse doser</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <!-- Reiknivél -->
+        <div class="wrapper">
+            <div class="topbar">
+                <div class="logo">
+                    <img src="image/akvagroup.png" alt="AKVA Group Logo">
+                </div>
+                <div class="title">Pulse doser</div>
+            </div>
+
+            <div class="content">
+                <!-- Max rate display -->
+                <div class="row">
+                    <div class="field">
+                        <div class="label">
+                            <span>Max rate display</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Select which funnel is installed in the doser.<br>
+                                    Raw funnel = 1000 g/s<br>
+                                    Standard funnel = 2000 g/s
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box">
+                            <div id="maxRate" class="value"></div>
+                            <div class="unit">g/s</div>
+                            <div class="btns">
+                                <button onclick="setFunnel(2000)">▲</button>
+                                <button onclick="setFunnel(1000)">▼</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+
+                <!-- Speed when pulsing / Pulse on time input -->
+                <div class="row">
+                    <div class="field">
+                        <div class="label">
+                            <span>Speed when pulsing</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Adjusts the motor speed when pulsing.<br>
+                                    Changing this value requires calibration.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box">
+                            <div id="speed" class="value"></div>
+                            <div class="unit">%</div>
+                            <div class="btns">
+                                <button onclick="step('speed',5,30,100)">▲</button>
+                                <button onclick="step('speed',-5,30,100)">▼</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="label">
+                            <span>Pulse on time</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Defines how long the doser runs during each pulse.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box">
+                            <div id="pulseOn" class="value"></div>
+                            <div class="unit">sec</div>
+                            <div class="btns">
+                                <button onclick="step('pulseOn',0.5,0.5,2)">▲</button>
+                                <button onclick="step('pulseOn',-0.5,0.5,2)">▼</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed rate / Max feed rate -->
+                <div class="row">
+                    <div class="field">
+                        <div class="label">
+                            <span>Feed rate</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Feed rate set by the operator.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box">
+                            <div id="feedRate" class="value"></div>
+                            <div class="unit">kg/min</div>
+                            <div class="btns">
+                                <button onclick="step('feedRate',1,0,100)">▲</button>
+                                <button onclick="step('feedRate',-1,0,100)">▼</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="label">
+                            <span>Max feed rate</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Highest possible feed rate with the current settings
+                                    before Pulse off time becomes too short.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box no-btn">
+                            <div id="maxFeedRate" class="value"></div>
+                            <div class="unit">kg/min</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tómt bil -->
+                <div class="row" style="margin-bottom: 60px;">
+                    <div></div>
+                    <div></div>
+                </div>
+
+                <!-- Pulse on time output / Pulse off time -->
+                <div class="row">
+                    <div class="field">
+                        <div class="label"><span>Pulse on time</span></div>
+                        <div class="box no-btn">
+                            <div id="pulseOnDose" class="value"></div>
+                            <div class="unit">sec</div>
+                        </div>
+                    </div>
+
+                    <div class="field" id="pulseOffContainer">
+                        <div class="label">
+                            <span>Pulse off time</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Time between pulses.
+                                    If it goes below 0.5 sec the doser has reached its capacity limit.
+                                </span>
+                            </span>
+                        </div>
+                        <div id="pulseOffBox" class="box no-btn">
+                            <div id="pulseOff" class="value"></div>
+                            <div class="unit">sec</div>
+                        </div>
+                        <div id="alertText" class="alert-text">
+                            No capacity!
+                            Adjust Speed, Pulse on time or Feed rate.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calibration value -->
+                <div class="row">
+                    <div class="field">
+                        <div class="label">
+                            <span>Calibration value</span>
+                            <span class="help-wrap">
+                                <span class="help-icon">?</span>
+                                <span class="help-tooltip">
+                                    Estimated calibration value based on funnel and speed.
+                                    Use this as a reference when calibrating.
+                                </span>
+                            </span>
+                        </div>
+                        <div class="box no-btn">
+                            <div id="cal" class="value"></div>
+                            <div class="unit">g/s</div>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Textagluggi -->
+        <div class="info-panel">
+            <div class="info-toggle">
+                <button id="btn2000" class="active" onclick="selectFunnelInfo(2000)">Standard 2000 g/s</button>
+                <button id="btn1000" onclick="selectFunnelInfo(1000)">Raw 1000 g/s</button>
+            </div>
+            <div id="infoContent"></div>
+        </div>
+    </div>
+
+    <!-- Neðri gluggi -->
+    <div class="bottom-panel">
+        <div class="panel-content" id="outroPanel"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
